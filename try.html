@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ShareFood — From Waste to Warmth (Prototype)</title>
+<style>
+  /* =========== Basic page & layout =========== */
+  :root{
+    --bg:#f6fbf5;
+    --panel:#ffffff;
+    --muted:#6b7280;
+    --accent:#0a914e;
+    --ai:#3b82f6;
+    --yellow:#f59e0b;
+    --red:#ef4444;
+    --card-radius:14px;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+  body{background:linear-gradient(180deg,#f0fff3 0%,var(--bg) 100%);display:flex;align-items:flex-start;justify-content:center;padding:28px 18px;box-sizing:border-box;color:#0b1220}
+  .stage{max-width:1200px;width:100%;display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:start}
+  h1{margin:0;font-size:1.6rem}
+  p.lead{margin:6px 0 18px;color:var(--muted)}
+
+  /* =========== Left: animation canvas =========== */
+  .canvas{
+    background:var(--panel);
+    border-radius:var(--card-radius);
+    padding:18px;
+    box-shadow:0 12px 30px rgba(10,20,20,0.06);
+    min-height:640px;
+    position:relative;
+    overflow:hidden;
+  }
+  .header-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .tag{background:linear-gradient(90deg,var(--ai),#60a5fa);color:white;padding:6px 10px;border-radius:999px;font-weight:600;font-size:13px}
+  .sub{color:var(--muted);font-size:13px;margin-left:auto}
+
+  /* conveyor area */
+  .conveyor-wrap{position:relative;height:320px;background:linear-gradient(180deg,#f7fff8,#ecfff0);border-radius:10px;padding:18px;box-sizing:border-box;border:1px dashed rgba(10,20,20,0.04)}
+  .conveyor{
+    position:absolute;left:0;right:0;top:130px;height:64px;margin:0 auto;background:linear-gradient(90deg,#dedede,#f4f4f4);border-radius:14px;box-shadow:inset 0 -6px 12px rgba(0,0,0,0.03);
+    display:block;overflow:hidden;
+  }
+
+  /* conveyor items (food pieces) */
+  .sf-item{
+    position:absolute;top: -40px; /* starts above conveyor line */
+    width:52px;height:52px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:22px;color:white;font-weight:700;transform:translateX(-80px);
+    box-shadow:0 8px 18px rgba(0,0,0,0.12);
+  }
+  .sf-edible{background:#10b981}    /* green */
+  .sf-compost{background:#f59e0b}   /* yellow */
+  .sf-non{background:#ef4444}      /* red */
+
+  /* "AI Scanner" beam */
+  .ai-scanner{
+    position:absolute; left:48%; top:86px; width:56px; height:160px; border-radius:8px;
+    box-shadow:0 6px 30px rgba(59,130,246,0.08) inset;
+    display:flex;align-items:center;justify-content:center; pointer-events:none;
+  }
+  .scanner-beam{
+    width:28px;height:160px;background:linear-gradient(180deg, rgba(59,130,246,0.18), rgba(59,130,246,0.05));
+    border-radius:8px;box-shadow:0 10px 30px rgba(59,130,246,0.06);animation:beam 1.6s linear infinite;
+  }
+  @keyframes beam{0%{transform:translateY(-8px)}50%{transform:translateY(6px)}100%{transform:translateY(-8px)}}
+
+  /* bins area */
+  .bins{
+    position:absolute;right:18px;bottom:18px;display:flex;gap:12px;align-items:end;
+  }
+  .bin{width:120px;height:120px;border-radius:12px;background:linear-gradient(180deg,#fff,#f3faf3);box-shadow:0 8px 18px rgba(2,6,23,0.06);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;border:2px solid rgba(10,20,20,0.03)}
+  .bin .label{font-weight:700;color:#223; margin-top:8px;font-size:13px}
+  .bin.edible{border-color:rgba(16,185,129,0.12)}
+  .bin.compost{border-color:rgba(245,158,11,0.12)}
+  .bin.non{border-color:rgba(239,68,68,0.12)}
+
+  /* robotic arm (visual) */
+  .robotic-arm{position:absolute;left:46%;top:70px;width:110px;height:100px;display:flex;align-items:center;justify-content:center;pointer-events:none}
+  .arm-box{width:28px;height:28px;border-radius:6px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;opacity:0.12}
+  .arm-arm{width:6px;height:60px;background:linear-gradient(180deg,#111,#333);transform-origin:top center;border-radius:4px}
+
+  /* =========== Right column: counters & explanation =========== */
+  .info{
+    background:var(--panel);border-radius:var(--card-radius);padding:18px;box-shadow:0 12px 30px rgba(10,20,20,0.06);min-height:640px;
+  }
+  .counter{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .counter .num{font-size:20px;font-weight:800;color:#0b3b2a}
+  .counter .desc{color:var(--muted);font-size:13px}
+  .meter{height:12px;background:#eef4ee;border-radius:999px;overflow:hidden;margin-top:6px}
+  .meter > i{display:block;height:100%;background:linear-gradient(90deg,#34d399,#059669);width:0%;transition:width 1s ease}
+
+  /* small legend */
+  .legend{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .legend .key{display:flex;align-items:center;gap:8px;padding:6px 8px;background:#fbfdfb;border-radius:8px;font-size:13px;color:#334}
+  .dot{width:14px;height:14px;border-radius:4px}
+
+  /* explanation text box */
+  .explain{margin-top:16px;color:var(--muted);font-size:14px;line-height:1.4}
+
+  /* ending happy face + lift */
+  .ending{
+    position:absolute;left:50%;top:12%;transform:translate(-50%,-20%) scale(0.8);opacity:0;pointer-events:none;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+  }
+  .happy{
+    width:140px;height:140px;border-radius:50%;background:linear-gradient(180deg,#06b06a,#01914e);display:flex;align-items:center;justify-content:center;color:white;font-size:56px;box-shadow:0 18px 40px rgba(2,40,18,0.24)
+  }
+  .ending.show{animation:liftIn 800ms cubic-bezier(.22,1.4,.34,1) forwards}
+  @keyframes liftIn{0%{transform:translate(-50%,-40%) scale(0.6);opacity:0}100%{transform:translate(-50%,-8%) scale(1);opacity:1}}
+
+  /* confetti leaves */
+  .leaf{position:fixed;width:12px;height:20px;z-index:9999;pointer-events:none;border-radius:3px;transform-origin:center;opacity:0.95}
+
+  /* small UI extras */
+  .small{font-size:13px;color:var(--muted)}
+  .btn{background:var(--ai);color:white;padding:8px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
+  footer{margin-top:12px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+  <div class="stage">
+
+    <!-- LEFT: animation canvas -->
+    <div class="canvas" id="sf-canvas">
+      <div class="header-row">
+        <div class="tag">AI SORTING • Biogas • Redistribution</div>
+        <div style="margin-left:12px">
+          <h1>From Waste to Warmth — how it works</h1>
+          <div class="small">Interactive prototype: watch AI sort, biogas capture & climate impact accumulate</div>
+        </div>
+        <div class="sub small">Prototype</div>
+      </div>
+
+      <!-- Conveyor and AI area -->
+      <div class="conveyor-wrap" id="conveyorWrap">
+        <div class="conveyor" id="conveyorLine"></div>
+
+        <!-- AI scanner -->
+        <div class="ai-scanner" aria-hidden>
+          <div class="scanner-beam"></div>
+        </div>
+
+        <!-- robotic arm as visual cue -->
+        <div class="robotic-arm">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div class="arm-box">AI</div>
+            <div class="arm-arm" style="height:56px"></div>
+          </div>
+        </div>
+
+        <!-- bins -->
+        <div class="bins" id="bins">
+          <div class="bin edible" id="binEdible">
+            <div style="font-size:28px">🍲</div>
+            <div class="label">For People</div>
+          </div>
+          <div class="bin compost" id="binCompost">
+            <div style="font-size:28px">⚡</div>
+            <div class="label">Biogas</div>
+          </div>
+          <div class="bin non" id="binNon">
+            <div style="font-size:28px">🚯</div>
+            <div class="label">Waste</div>
+          </div>
+        </div>
+
+        <!-- ending happy -->
+        <div class="ending" id="endingEl">
+          <div class="happy">😊</div>
+          <div style="background:rgba(255,255,255,0.9);padding:10px 14px;border-radius:10px;color:#064; font-weight:700">Our planet smiles — thank you!</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
+        <div class="small">AI classifies items instantly using vision + sensors.</div>
+        <button class="btn" id="btnStart">Start Simulation</button>
+        <button class="btn" id="btnReset" style="background:#444">Reset</button>
+      </div>
+
+    </div> <!-- end canvas -->
+
+    <!-- RIGHT: counters & explanation -->
+    <aside class="info">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h2 style="margin:0">Impact Counters</h2>
+          <div class="small">Real-time estimated environmental benefits</div>
+        </div>
+        <div style="text-align:right">
+          <div class="small">Conversion factors:</div>
+          <div class="small" style="color:var(--muted)">1 kg food → CH₄ avoided factor adjustable</div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px">
+        <div class="counter">
+          <div class="num" id="counterFood">0</div>
+          <div class="desc">
+            <div style="font-weight:700">kg Food diverted</div>
+            <div class="small">edible & composted</div>
+          </div>
+        </div>
+        <div class="counter">
+          <div class="num" id="counterMethane">0</div>
+          <div class="desc">
+            <div style="font-weight:700">kg CH₄ prevented</div>
+            <div class="small">recovered for energy</div>
+          </div>
+        </div>
+        <div class="counter">
+          <div class="num" id="counterCO2e">0</div>
+          <div class="desc">
+            <div style="font-weight:700">kg CO₂e avoided</div>
+            <div class="small">equivalent reduction</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div style="font-weight:700">Overall capture meter</div>
+          <div class="meter" aria-hidden>
+            <i id="meterFill" style="width:0%"></i>
+          </div>
+          <div class="small" style="margin-top:6px">Meter fills as we divert more waste.</div>
+        </div>
+
+        <div class="legend" aria-hidden>
+          <div class="key"><div class="dot" style="background:#10b981"></div> Edible → shared</div>
+          <div class="key"><div class="dot" style="background:#f59e0b"></div> Compostable → biogas</div>
+          <div class="key"><div class="dot" style="background:#ef4444"></div> Non-organic → landfill</div>
+        </div>
+
+        <div class="explain">
+          <strong>How we recycle (visualized):</strong>
+          <ul style="padding-left:18px;margin-top:8px;color:var(--muted)">
+            <li>AI vision & sensors scan items on a conveyor and classify them (freshness & safety).</li>
+            <li>Edible items are boxed and redistributed to communities.</li>
+            <li>Inedible organic material is sent to a biogas digester — methane is captured and used for cooking/electricity.</li>
+            <li>We estimate methane prevented and display CO₂e avoided for transparency.</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <footer>
+        Tip: this is a prototype — numbers are illustrative and conversion factors are adjustable for actual deployment.
+      </footer>
+    </aside>
+  </div>
+
+<script>
+/*
+  Prototype control logic
+  - Items are spawned and move across conveyor.
+  - When they pass under the AI scanner we classify each item and animate it to the correct bin.
+  - Totals updated using simple conversion factors.
+  - Ending sequence triggers when food diverted reaches a chosen threshold.
+*/
+
+/* ----- Configurable parameters ----- */
+const SPAWN_INTERVAL_MS = 900;      // how often new items appear
+const ITEM_SPEED_PX_PER_SEC = 140;  // conveyor travel speed (px per second)
+const ITEM_BASE_WEIGHT_KG = 4.0;    // average kg per item (for the prototype)
+const CH4_PER_KG_FOOD = 0.02;       // assumed kg CH4 prevented per kg of diverted food (adjustable)
+const GWP_CH4 = 28;                 // global warming potential for converting CH4 → CO2e
+
+/* ----- DOM refs ----- */
+const conveyor = document.getElementById('conveyorLine');
+const conveyorWrap = document.getElementById('conveyorWrap');
+const binEdible = document.getElementById('binEdible');
+const binCompost = document.getElementById('binCompost');
+const binNon = document.getElementById('binNon');
+
+const counterFood = document.getElementById('counterFood');
+const counterMethane = document.getElementById('counterMethane');
+const counterCO2e = document.getElementById('counterCO2e');
+const meterFill = document.getElementById('meterFill');
+const endingEl = document.getElementById('endingEl');
+
+const btnStart = document.getElementById('btnStart');
+const btnReset = document.getElementById('btnReset');
+
+/* ----- runtime state ----- */
+let running = false;
+let spawnTimer = null;
+let itemId = 0;
+let totals = {
+  kgFood: 0,
+  kgCH4: 0,
+  kgCO2e: 0
+};
+let endThresholdKg = 120; // when we reach this diverted kg, show happy ending
+
+/* utility: random choice weighted by probabilities for item sources/types */
+function chooseType() {
+  // probabilities: edible 40% , compostable 45%, non 15%
+  const r = Math.random();
+  if (r < 0.40) return 'edible';
+  if (r < 0.85) return 'compost';
+  return 'non';
+}
+
+/* spawn an item element (visual piece of waste) */
+function spawnItem() {
+  itemId++;
+  const type = chooseType();
+  const el = document.createElement('div');
+  el.className = `sf-item sf-${type}`;
+  el.dataset.type = type;
+  el.dataset.weight = (ITEM_BASE_WEIGHT_KG * (0.6 + Math.random()*0.9)).toFixed(2); // 0.6x-1.5x multiplier
+  el.dataset.id = 'it-'+itemId;
+  // emoji/icon for visual
+  const icons = {
+    edible: '🥖',
+    compost: '🥕',
+    non: '🍟'
+  };
+  el.textContent = icons[type];
+  conveyorWrap.appendChild(el);
+
+  // starting position (left of conveyor)
+  const startX = -80; // px
+  const conveyorRect = conveyor.getBoundingClientRect();
+  // place vertically so it sits centered on conveyor
+  el.style.top = (conveyorRect.top - conveyorWrap.getBoundingClientRect().top - 26) + 'px';
+  el.style.left = startX + 'px';
+
+  // compute travel distance (to right end + extra) in px
+  const travelTo = conveyorRect.left + conveyorRect.width + 100;
+  const distancePx = travelTo - (conveyorWrap.getBoundingClientRect().left + startX);
+  const durationMs = Math.max(1200, (distancePx / ITEM_SPEED_PX_PER_SEC) * 1000);
+
+  // animate along the x axis using requestAnimationFrame for control
+  const startTime = performance.now();
+  function step(now){
+    const t = (now - startTime) / durationMs;
+    if (t >= 1) {
+      // reached end of conveyor — remove element
+      el.remove();
+      return;
+    }
+    // set x
+    const x = startX + (distancePx * t);
+    el.style.transform = `translateX(${x}px)`;
+    // check if under scanner (center area)
+    checkScanner(el);
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+
+  // cleanup: if element removed earlier by being pushed to bin, cancel its animation by setting a flag
+  el._pushed = false;
+}
+
+/* check if element is under the scanner and classify */
+function checkScanner(el) {
+  if (el._pushed) return; // already sorted
+  const scanner = document.querySelector('.ai-scanner .scanner-beam');
+  const sRect = scanner.getBoundingClientRect();
+  const elRect = el.getBoundingClientRect();
+
+  // if the center of the item is within scanner's vertical zone and near center x
+  const elCenterX = elRect.left + elRect.width/2;
+  const beamCenterX = sRect.left + sRect.width/2;
+  const withinX = Math.abs(elCenterX - beamCenterX) < 36; // threshold
+  const withinY = (elRect.top + elRect.height/2) > (sRect.top) && (elRect.top) < (sRect.bottom);
+  if (withinX && withinY) {
+    // classify and push: allow a tiny debounce
+    if (!el._scanned) {
+      el._scanned = true;
+      setTimeout(()=> aiClassifyAndPush(el), 220); // small delay for realism
+    }
+  }
+}
+
+/* AI classification simulation (here we already have a "type" but we can show confidence) */
+function aiClassifyAndPush(el) {
+  if (!el || el._pushed) return;
+  // show a brief glow to indicate classification
+  el.style.boxShadow = '0 10px 30px rgba(59,130,246,0.18), 0 4px 10px rgba(0,0,0,0.08)';
+  // visual confidence indicator (tiny)
+  const conf = 0.82 + Math.random()*0.16;
+  const confEl = document.createElement('div');
+  confEl.style.position='absolute';
+  confEl.style.left = '0';
+  confEl.style.top = '0';
+  confEl.style.padding='2px 6px';
+  confEl.style.fontSize='11px';
+  confEl.style.background='rgba(255,255,255,0.95)';
+  confEl.style.borderRadius='6px';
+  confEl.style.boxShadow='0 4px 8px rgba(0,0,0,0.08)';
+  confEl.textContent = `AI ${Math.round(conf*100)}%`;
+  el.appendChild(confEl);
+
+  // determine actual target bin based on item type (in real product AI might override)
+  const type = el.dataset.type;
+  let targetBin = (type === 'edible') ? binEdible : (type === 'compost') ? binCompost : binNon;
+  // animate push: slide up and then to bin's position
+  pushToBin(el, targetBin);
+}
+
+/* animate item from conveyor into the bin */
+function pushToBin(el, binEl) {
+  el._pushed = true;
+  // compute destination center
+  const binRect = binEl.getBoundingClientRect();
+  const wrapRect = conveyorWrap.getBoundingClientRect();
+
+  // current absolute position
+  const curRect = el.getBoundingClientRect();
+  const curX = curRect.left;
+  const curY = curRect.top;
+
+  // destination coordinates (center of bin)
+  const destX = binRect.left + binRect.width/2;
+  const destY = binRect.top + binRect.height/2;
+
+  // convert to translate coordinates relative to el's current transform
+  const dx = destX - curX;
+  const dy = destY - curY;
+
+  // apply smooth transform: float up slightly then arc into bin
+  el.style.transition = 'transform 700ms cubic-bezier(.22,.9,.2,1), top 700ms ease';
+  el.style.transform = `translate(${dx}px, ${dy}px) scale(0.88) rotate(${(Math.random()*20-10)}deg)`;
+  setTimeout(()=>{
+    // update totals based on item weight and type (if edible or compost, we count diverted food kg)
+    const w = parseFloat(el.dataset.weight) || ITEM_BASE_WEIGHT_KG;
+    if (el.dataset.type === 'edible' || el.dataset.type === 'compost') {
+      totals.kgFood += w;
+      const ch4 = w * CH4_PER_KG_FOOD;
+      totals.kgCH4 += ch4;
+      totals.kgCO2e += ch4 * GWP_CH4;
+      updateCounters();
+      // optionally create a tiny +kg floating label
+      showFloatingLabel(`+${w.toFixed(1)} kg`, destX, destY, '#0b6');
+    } else {
+      // non-organic: we don't count as diverted
+      showFloatingLabel(`discarded`, destX, destY, '#b33');
+    }
+
+    // remove item visually after small delay
+    setTimeout(()=> el.remove(), 900);
+    // maybe spawn a leaf confetti for compost -> biogas
+    if (el.dataset.type === 'compost') spawnLeafBurst(destX, destY, 8);
+  }, 720);
+}
+
+/* update counters and meter */
+function updateCounters() {
+  counterFood.textContent = Math.round(totals.kgFood);
+  counterMethane.textContent = totals.kgCH4.toFixed(2);
+  counterCO2e.textContent = Math.round(totals.kgCO2e);
+  // meter as percent of endThreshold
+  const pct = Math.min(100, (totals.kgFood / endThresholdKg) * 100);
+  meterFill.style.width = pct + '%';
+  // if threshold reached show ending
+  if (totals.kgFood >= endThresholdKg) triggerEnding();
+}
+
+/* visual floating label */
+function showFloatingLabel(text, x, y, color='#333') {
+  const lab = document.createElement('div');
+  lab.textContent = text;
+  lab.style.position='fixed';
+  lab.style.left = (x - 20) + 'px';
+  lab.style.top = (y - 20) + 'px';
+  lab.style.padding = '6px 8px';
+  lab.style.background = 'rgba(255,255,255,0.95)';
+  lab.style.border = '1px solid rgba(0,0,0,0.06)';
+  lab.style.borderRadius = '8px';
+  lab.style.fontSize = '12px';
+  lab.style.color = color;
+  lab.style.zIndex = 1200;
+  lab.style.opacity = '1';
+  document.body.appendChild(lab);
+  lab.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(-28px)',opacity:0}],{duration:1200,easing:'ease-out',fill:'forwards'});
+  setTimeout(()=> lab.remove(),1400);
+}
+
+/* confetti leaves */
+function spawnLeafBurst(x,y,count=12){
+  for(let i=0;i<count;i++){
+    const leaf = document.createElement('div');
+    leaf.className='leaf';
+    leaf.style.left = x + 'px';
+    leaf.style.top = y + 'px';
+    leaf.style.background = ['#a7f3d0','#bbf7d0','#86efac','#34d399'][Math.floor(Math.random()*4)];
+    leaf.style.transform = `rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(leaf);
+    const dx = (Math.random()*200-100);
+    const dy = (150+Math.random()*200);
+    const rot = (Math.random()*720-360);
+    leaf.animate([
+      {transform:`translate(0,0) rotate(0deg)`,opacity:1},
+      {transform:`translate(${dx}px,${dy}px) rotate(${rot}deg)`,opacity:0}
+    ],{duration:1600+Math.random()*600,easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'});
+    setTimeout(()=> leaf.remove(),2300);
+  }
+}
+
+/* show ending happy and leaf confetti across screen */
+function triggerEnding(){
+  if (endingEl.classList.contains('shown')) return;
+  endingEl.classList.add('shown');
+  endingEl.classList.add('show');
+  // spawn wide confetti burst
+  for (let i=0;i<50;i++){
+    setTimeout(()=> {
+      const x = window.innerWidth * (0.2 + Math.random()*0.6);
+      const y = window.innerHeight * (0.05 + Math.random()*0.2);
+      spawnLeafBurst(x,y,6);
+    }, i*35);
+  }
+}
+
+/* start and reset controls */
+btnStart.addEventListener('click',()=>{
+  if (running) return;
+  running = true;
+  btnStart.textContent = 'Running...';
+  spawnTimer = setInterval(spawnItem, SPAWN_INTERVAL_MS);
+  // spawn an initial few items so it looks lively
+  for(let i=0;i<3;i++) setTimeout(spawnItem, i*200);
+});
+btnReset.addEventListener('click',()=>{
+  running=false;
+  btnStart.textContent='Start Simulation';
+  clearInterval(spawnTimer);
+  spawnTimer=null;
+  // clear items
+  document.querySelectorAll('.sf-item').forEach(x=>x.remove());
+  // reset totals and UI
+  totals = {kgFood:0,kgCH4:0,kgCO2e:0};
+  updateCounters();
+  meterFill.style.width='0%';
+  endingEl.classList.remove('show','shown');
+});
+
+/* init: ensure counters reflect initial state */
+updateCounters();
+</script>
+</body>
+</html>

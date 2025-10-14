@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sharefood</title>
+    <link rel="stylesheet" href="sharefood.css">
+    <style>
+        /* === PAGE TRANSITION STYLES === */
+        body {
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        body.fade-in {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+          <nav class = "navbar">
+                <div class="nav__logo">
+                    <img src="logo.png" alt="Sharefood Logo">
+                </div>
+                <div class="menu-toggle" id="menu-toggle">☰</div>
+                <ul class="nav__links">
+                    <li><a href="./sharefood.html">Home</a></li>
+                    <li><a href="#aboutUs">About Us</a></li>
+                    <li><a href="#map">Map</a></li>
+                    <li><a href="#programs">Programs</a></li>
+                    <li><a href="#story-section">Us and the Environment</a></li>
+                    <li><a href="#futuristicvision">Futuristic Vision</a></li>
+              
+                </ul>
+            </nav>
+  <div class="banner" id="banner">
+    Keeping both the people and environment happy: Good Food at your table.
+    Bad Food out of your dumpster into recycling center... 
+    We are the SHAREFOOD community.
+  </div>
+
+  <script>
+    // === OPTIONAL SMALL JS FOR GENTLE FLAG MOVEMENT ===
+    const banner = document.getElementById("banner");
+    let angle = 0;
+
+    function waveBanner() {
+      angle += 0.03; // smaller = slower, bigger = faster
+      const xTilt = Math.sin(angle) * 4; // waving tilt angle
+      const yTilt = Math.cos(angle / 2) * 2;
+
+      banner.style.transform = `perspective(400px) rotateX(${yTilt}deg) rotateY(${xTilt}deg)`;
+      requestAnimationFrame(waveBanner);
+    }
+
+    // Start wave effect after fly-in completes
+    setTimeout(() => {
+      waveBanner();
+    }, 2000);
+  </script>
+
+          <section class="map-section" id="map">
+  <h1>🚚 Egypt Delivery Network</h1>
+  <p>These are Egyptian cities with highest hunger-index. Help us donate and relief the hunger!</p>
+
+  <div class="map-container">
+    <svg viewBox="0 0 800 600">
+
+      <!-- Combined Route Network -->
+      <path id="routePath"
+        d="M100,300 
+           C200,250 300,250 400,300 
+           S600,400 700,350 
+           C650,250 500,200 400,300 
+           C350,180 250,180 250,180 
+           C180,200 150,250 100,300 
+           C200,350 250,420 200,420
+           C250,380 350,320 400,300
+           C500,250 600,250 600,250
+           C650,280 700,350 700,350Z"
+        class="route"
+      />
+
+      <!-- Cities -->
+      <circle class="city" cx="100" cy="300" r="14" id="alexandria" />
+      <circle class="city" cx="250" cy="180" r="14" id="banha" />
+      <circle class="city" cx="400" cy="300" r="14" id="cairo" />
+      <circle class="city" cx="600" cy="250" r="14" id="suez" />
+      <circle class="city" cx="700" cy="350" r="14" id="monofia" />
+      <circle class="city" cx="200" cy="420" r="14" id="menya" />
+
+      <!-- Labels -->
+      <text class="labels" x="80" y="280">Alexandria</text>
+      <text class="labels" x="230" y="160">Banha</text>
+      <text class="labels" x="380" y="340">Cairo</text>
+      <text class="labels" x="580" y="230">Suez</text>
+      <text class="labels" x="680" y="390">Monofia</text>
+      <text class="labels" x="180" y="460">Menya</text>
+
+      <!-- Truck -->
+      <text id="truck">🏍️</text>
+    </svg>
+
+    <!-- Popups -->
+      <div class="popup" id="popup-alex" style="bottom: 420px; left: 10px;">
+        <ul>
+          <li>1500 families in need</li>
+          <li>1290 meals delivered per day</li>
+          
+        </ul>
+        <div class="donate-btn" onclick="openForm('Alexandria')">💙 Donate Now to Alexandria</div>
+      </div>
+
+      <div class="popup" id="popup-banha" style="bottom: 540px; left: 220px;">
+        <ul>
+          <li>1500 families in need</li>
+          <li>1290 meals delivered per day</li>
+       
+        </ul>
+        <div class="donate-btn" onclick="openForm('Banha')">💙 Donate Now to Banha</div>
+      </div>
+
+      <div class="popup" id="popup-cairo" style="bottom: 390px; left: 420px;">
+        <ul>
+          <li>1500 families in need</li>
+          <li>1290 meals delivered per day</li>
+        
+        </ul>
+        <div class="donate-btn" onclick="openForm('Cairo')">💙 Donate Now to Cairo</div>
+      </div>
+
+      <div class="popup" id="popup-suez" style="bottom: 485px; left: 610px;">
+        <ul>
+          <li>1500 families in need</li>
+          <li>1290 meals delivered per day</li>
+          
+        </ul>
+        <div class="donate-btn" onclick="openForm('Suez')">💙 Donate Now to Suez</div>
+      </div>
+
+      <div class="popup" id="popup-monofia" style="top: 490px; left: 720px;">
+        <ul>
+          <li>1500 families in need</li>
+          <li>1290 meals delivered per day</li>
+         
+        </ul>
+        <div class="donate-btn" onclick="openForm('Monofia')">💙 Donate Now to Monofia</div>
+      </div>
+
+      <div class="popup" id="popup-menya" style="top: 555px; left: 180px;">
+        <ul>
+          <li>1500 families in need</li>
+          <li>1290 meals delivered per day</li>
+        
+        </ul>
+        <div class="donate-btn" onclick="openForm('Menya')">💙 Donate Now to Menya</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Donation Form -->
+  <div class="form-popup" id="donationForm">
+    <h2 id="form-title">Donation Form</h2>
+    <form id="donateForm">
+      <label>First Name</label>
+      <input type="text" placeholder="Enter your first name" required>
+      <label>Last Name</label>
+      <input type="text" placeholder="Enter your last name" required>
+      <label>Phone Number</label>
+      <input type="tel" placeholder="Enter your phone number" required>
+      <label>Email</label>
+      <input type="email" placeholder="Enter your email" required>
+      <label>Date You Will Deliver</label>
+      <input type="date" required>
+      <label>Extra Comments (why you’re delivering)</label>
+      <textarea placeholder="Write your reason..."></textarea>
+      <label>Description of Food You'll Deliver</label>
+      <textarea placeholder="Describe the food you'll bring..."></textarea>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <script>
+  // --- Donation Popup Logic ---
+  const donationForm = document.getElementById("donationForm");
+  const formTitle = document.getElementById("form-title");
+  const donateForm = document.getElementById("donateForm");
+
+  // Function to open the form
+  function openForm(city) {
+    formTitle.textContent = `Donation Form for ${city}`;
+    donateForm.reset(); // clear old input
+    donationForm.classList.remove("show");
+    setTimeout(() => donationForm.classList.add("show"), 50);
+  }
+
+  // --- Confetti + Thank You Message ---
+  const thankYou = document.createElement("div");
+  thankYou.className = "thank-you-message";
+  thankYou.textContent = "💖 THANK YOU FOR YOUR DONATION 💖";
+  document.body.appendChild(thankYou);
+
+  function createConfetti() {
+    for (let i = 0; i < 30; i++) {
+      const confetti = document.createElement("span");
+      confetti.className = "confetti";
+      confetti.style.left = "50%";
+      confetti.style.top = "50%";
+      confetti.style.backgroundColor =
+        ["#ffadad", "#ffd6a5", "#caffbf", "#9bf6ff", "#bdb2ff", "#ffc6ff"][Math.floor(Math.random() * 6)];
+      document.body.appendChild(confetti);
+
+      const angle = Math.random() * 2 * Math.PI;
+      const distance = Math.random() * 150 + 100;
+      const x = Math.cos(angle) * distance;
+      const y = Math.sin(angle) * -distance;
+
+      confetti.animate(
+        [
+          { transform: "translate(0,0) scale(1)", opacity: 1 },
+          { transform: `translate(${x}px, ${y}px) scale(1.2)`, opacity: 1 },
+          { transform: `translate(${x}px, ${y + 800}px) rotate(720deg) scale(0.8)`, opacity: 0 },
+        ],
+        {
+          duration: 2000 + Math.random() * 500,
+          easing: "ease-out",
+          fill: "forwards"
+        }
+      );
+      setTimeout(() => confetti.remove(), 2500);
+    }
+  }
+
+  // --- Form Submission ---
+  donateForm.addEventListener("submit", e => {
+    e.preventDefault();
+
+    // Hide form smoothly
+    donationForm.classList.remove("show");
+    createConfetti();
+
+    // Show thank-you message
+    setTimeout(() => {
+      thankYou.classList.add("show");
+
+      // Hide message after 2.25 seconds
+      setTimeout(() => {
+        thankYou.classList.remove("show");
+      }, 2250);
+
+    }, 500);
+  });
+
+  // --- Popup Cycling ---
+  const popups = document.querySelectorAll('.popup');
+  let index = 0;
+  function cyclePopups() {
+    popups.forEach(p => p.classList.remove('show'));
+    popups[index].classList.add('show');
+    index = (index + 1) % popups.length;
+  }
+  cyclePopups();
+  setInterval(cyclePopups, 3000);
+
+  // --- Truck Animation ---
+  const truck = document.getElementById("truck");
+  const path = document.getElementById("routePath");
+  const pathLength = path.getTotalLength();
+  let startTime = null;
+  const duration = 10000;
+
+  function animateTruck(time) {
+    if (!startTime) startTime = time;
+    const progress = (time - startTime) / duration;
+    const point = path.getPointAtLength(progress * pathLength);
+    truck.setAttribute("x", point.x);
+    truck.setAttribute("y", point.y);
+    if (progress < 1) {
+      requestAnimationFrame(animateTruck);
+    } else {
+      startTime = null;
+      requestAnimationFrame(animateTruck);
+    }
+  }
+  requestAnimationFrame(animateTruck);
+
+  // === Donation Counter + Progress Update ===
+let totalDonations = 0; // tracks total donations made
+
+// Get all donation count elements inside each popup/card
+const donationCounters = document.querySelectorAll('.donation-count');
+const progressFills = document.querySelectorAll('.progress-fill');
+
+// Modify your donation form submission handler
+goalDonationForm.addEventListener('submit', e => {
+  e.preventDefault();
+
+  // Hide form and show success message
+  goalDonationForm.style.opacity = '0';
+  goalDonationForm.style.transform = 'scale(0.9)';
+  setTimeout(() => {
+    goalDonationForm.style.display = 'none';
+    goalDonationSuccess.style.display = 'block';
+    goalDonationSuccess.style.opacity = '1';
+  }, 300);
+
+  // 🟢 Update donation number and progress bars
+  totalDonations++;
+  donationCounters.forEach(counter => {
+    counter.textContent = totalDonations + " donations";
+  });
+
+  progressFills.forEach(fill => {
+    let currentWidth = parseFloat(fill.style.width) || 0;
+    let newWidth = Math.min(currentWidth + 10, 100); // +10% per donation
+    fill.style.width = newWidth + "%";
+  });
+
+  // Optional: play coin sound
+  const sound = new Audio("https://cdn.pixabay.com/download/audio/2021/09/01/audio_89b7db2c75.mp3?filename=coin-c-05-100093.mp3");
+  sound.play();
+
+  // Remove success message and close popup
+  setTimeout(() => {
+    goalDonationSuccess.style.opacity = '0';
+    goalDonationOverlay.classList.remove('active');
+
+    // Reset for next use
+    setTimeout(() => {
+      goalDonationForm.reset();
+      goalDonationForm.style.display = 'block';
+      goalDonationForm.style.opacity = '1';
+      goalDonationForm.style.transform = 'scale(1)';
+      goalDonationSuccess.style.display = 'none';
+    }, 600);
+  }, 2250);
+});
+
+</script>
+  <h2 style="text-align: center; color:black; font-size:2.5em;">🌍 The Story of Food Waste and Climate Change 🌡️</h2>
+
+<section id="story-section" class="story-section">
+  <div class="scene">
+    <div class="restaurant">🏪
+      <p style="font-size: 36px; text-align: center; margin-top: -10px;">Restaurant</p>
+    </div>
+    <div class="dumpster">🗑️</div>
+
+
+
+    <!-- FOOD ITEMS -->
+    <div class="food good">🥗 Good Food</div>
+    <div class="food bad" style="animation-delay: 0.5s;">🍖 Bad Food</div>
+    <div class="food good" style="animation-delay: 1s;">🍞 Good Food</div>
+    <div class="food bad" style="animation-delay: 1.5s;">🥩 Bad Food</div>
+    <div class="food bad" style="animation-delay: 2s;">🍤 Bad Food</div>
+
+         <div class="floating-text1">                 Every year, restarurants discard TONS OF UNSOLD
+          FOOD- WHETHER GOOD OR BAD</div>
+  </div>
+    <div class="floating-text">As food rots, greenhouse gases increase 🌍💨</div>
+  </div>
+
+  <!-- GAS BARS -->
+  <div class="gas-bars">
+    <div>CH₄ (Methane)</div>
+    <div class="bar-container"><div class="bar methane"></div></div>
+    <div>CO₂ (Carbon Dioxide)</div>
+    <div class="bar-container"><div class="bar co2"></div></div>
+  </div>
+
+  <!-- EARTH + THERMOMETER -->
+  <div class="earth-scene">
+    <div class="earth-wrapper">
+      <div class="earth">🌍</div>
+      <div class="thermometer"><div class="thermo-fill"></div></div>
+    </div>
+    <div class="label"> This causes GLOBAL WARMING 🌡️🔥</div>
+  </div>
+  <div class="end-buttons" style="display:none; opacity:0;">
+  <button id="replayBtn" style="top: 10%;" class="glow-btn">🔁 Replay Story</button>
+  <button id="startRecycleBtn" class="glow-btn green">🌱 Start Recycling Simulation</button>
+</div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const methaneBar = document.querySelector('.methane');
+  const co2Bar = document.querySelector('.co2');
+  const badFoods = document.querySelectorAll('.food.bad');
+  const earthScene = document.querySelector('.earth-scene');
+  const earth = document.querySelector('.earth');
+  const thermoFill = document.querySelector('.thermo-fill');
+  const label = document.querySelector('.label');
+  const gasBars = document.querySelector('.gas-bars');
+  const dumpster = document.querySelector('.dumpster');
+
+  // SAFETY CHECK
+  if (!methaneBar || !co2Bar || !earthScene || !dumpster) {
+    console.warn("Missing required HTML elements!");
+    return;
+  }
+
+  // === BAD FOOD MOVEMENT ===
+  badFoods.forEach((food, index) => {
+    const delay = 4000 + index * 600;
+    setTimeout(() => {
+      const sceneRect = food.parentElement.getBoundingClientRect();
+      const dumpsterRect = dumpster.getBoundingClientRect();
+
+      const targetX = dumpsterRect.left - sceneRect.left + dumpsterRect.width / 2 - 50;
+      const targetY = sceneRect.height - (dumpsterRect.bottom - sceneRect.top) + 90;
+
+      food.style.transition = "transform 2s ease-in-out, opacity 1s ease 2s";
+      food.style.transform = `translate(${targetX - food.offsetLeft}px, -${targetY}px)`;
+
+      setTimeout(() => (food.style.opacity = "0"), 2500);
+    }, delay);
+  });
+
+  // === GAS BARS FILLING ===
+  setTimeout(() => {
+    methaneBar.style.transition = "width 3s ease";
+    co2Bar.style.transition = "width 3s ease";
+    methaneBar.style.width = "80%";
+    co2Bar.style.width = "65%";
+  }, 7000);
+
+  // === SHOW EARTH AFTER BARS FADE ===
+  setTimeout(() => {
+    gasBars.style.transition = "opacity 1.5s ease";
+    gasBars.style.opacity = "0";
+
+    setTimeout(() => {
+      gasBars.style.display = "none";
+      earthScene.style.display = "flex";
+      earthScene.style.opacity = "0";
+      earthScene.style.transition = "opacity 1.5s ease";
+
+      requestAnimationFrame(() => {
+        earthScene.style.opacity = "1";
+        setTimeout(() => {
+          earth.style.filter = "hue-rotate(30deg) brightness(1.3)";
+          earth.style.transform = "scale(1.1)";
+          thermoFill.style.height = "100%";
+          label.style.opacity = "1";
+        }, 1000);
+      });
+    }, 1500);
+  }, 12000);
+  // === SHOW BUTTONS AFTER EARTH ANIMATION ===
+setTimeout(() => {
+  const buttons = document.querySelector('.end-buttons');
+  buttons.style.display = 'flex';
+  requestAnimationFrame(() => {
+    buttons.style.opacity = '1';
+  });
+
+  // Replay button resets animation
+  document.getElementById('replayBtn').addEventListener('click', () => {
+    window.location.reload();
+  });
+
+  // Start recycling simulation
+  document.getElementById('startRecycleBtn').addEventListener('click', () => {
+   // alert('Next simulation will start soon! 🌱'); 
+    // You can replace this with your navigation logic:
+     window.location.href = "./try.html"; // Example navigation
+  });
+}, 15000); // appears a bit after Earth animation
+});
+</script>
+
+
+
+<div class="page-content">
+  <!--Donation Goals-->
+<section id="programs" class="programs-section">
+  <h1 class="programs">Our Pending Donation Goals!</h1>
+
+  <!-- Hot Meals -->
+  <div class="goal-card" id="hotmeals" data-goal="100000" data-raised="10000">
+    <style>
+      #hotmeals {
+        background: linear-gradient(90deg, #858585, #c56c56);
+      }
+      .goal-text {
+        color: black;
+      }
+    </style>
+    <img class="goal-img" src="./hotmeals.jpg">
+    <h2>Steamy Savory Soup!</h2>
+    <p class="goal-text">Hot meals: SOUP or STEW for 1000 families in BANHA. HELP MAKE A DIFFERENCE NOW</p>
+    <p style="font-size: larger; color:rgb(16, 70, 170); font-weight:bolder">Goal:100,000EGP</p>
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 10%;"></div>
+      </div>
+    </div>
+    <p class="amount-raised">10,000 EGP raised </p>
+    <button class="increase-btn">Donate</button>
+    <button class="reset-btn">Reset</button>
+  </div>
+
+  <!-- Bottled Water -->
+  <div class="goal-card" data-goal="150000" data-raised="100000">
+    <img class="goal-img" src="./bottledwater.jpeg">
+    <h2>The Vital BLUE Drink</h2>
+    <p class="goal-text">Every person deserves a drink. FOR 1.5 million in Alex</p>
+    <p style="font-size: larger; color:rgb(16, 70, 170); font-weight:bolder">Goal:150,000EGP</p>
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 66%;"></div>
+      </div>
+    </div>
+    <p class="amount-raised">100,000 EGP raised</p>
+    <button class="increase-btn">Donate</button>
+    <button class="reset-btn">Reset</button>
+  </div>
+
+  <!-- Legumes -->
+  <div class="goal-card" id="legumes" data-goal="500000" data-raised="10000">
+    <img class="goal-img" src="./legumes.webp">
+    <style>
+      #legumes {
+        background: linear-gradient(90deg, #32740c, #ccc929);
+      }
+      .goal-text {
+        color: black;
+      }
+    </style>
+    <h2>FIBRES are ESSENTIAL</h2>
+    <p class="goal-text">Arabs cannot live without BEANS or lentils... HELP US COLLECT the seasonal seeds!</p>
+    <p style="font-size: larger; color:rgb(16, 70, 170); font-weight:bolder">Goal:500,000EGP</p>
+
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 2%;"></div>
+      </div>
+    </div>
+    <p class="amount-raised">10,000 EGP</p>
+    <button class="increase-btn">Donate</button>
+    <button class="reset-btn">Reset</button>
+  </div>
+</section>
+</div>
+
+<!-- GOAL DONATION POPUP -->
+<div class="goal-donation-overlay">
+  <form class="goal-donation-form">
+    <h2>Make a Contribution</h2>
+    <input type="text" placeholder="First Name" required>
+    <input type="text" placeholder="Last Name" required>
+    <input type="number" placeholder="Amount (EGP)" min="1" required>
+    <button type="submit">Donate</button>
+  </form>
+  <div class="goal-donation-success">💙 YOU MADE A DIFFERENCE!</div>
+</div>
+
+<script>
+const goalDonationOverlay = document.querySelector('.goal-donation-overlay');
+const goalDonationForm = document.querySelector('.goal-donation-form');
+const goalDonationSuccess = document.querySelector('.goal-donation-success');
+const pageContent = document.querySelector('.page-content');
+
+let activeCard = null; // track which card user is donating to
+
+// 1️⃣ Open popup
+document.querySelectorAll('.increase-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    activeCard = e.target.closest('.goal-card');
+    goalDonationOverlay.classList.add('active');
+    pageContent.classList.add('blur-active');
+  });
+});
+
+// 2️⃣ Close popup by clicking outside
+goalDonationOverlay.addEventListener('click', e => {
+  if (e.target === goalDonationOverlay) {
+    goalDonationOverlay.classList.remove('active');
+    pageContent.classList.remove('blur-active');
+  }
+});
+
+// 3️⃣ Handle form submission
+goalDonationForm.addEventListener('submit', e => {
+  e.preventDefault();
+  if (!activeCard) return;
+
+  const amountInput = goalDonationForm.querySelector('input[type="number"]');
+  const donation = parseFloat(amountInput.value);
+
+  // Validate
+  if (isNaN(donation) || donation <= 0) {
+    alert("⚠️ Please enter a valid donation amount.");
+    return;
+  }
+
+  const goal = parseFloat(activeCard.dataset.goal);
+  let raised = parseFloat(activeCard.dataset.raised || 0);
+
+  // Prevent exceeding goal
+  if (raised + donation > goal) {
+    alert("🎯 This goal is already fulfilled! You can’t exceed the target.");
+    amountInput.value = '';
+    return;
+  }
+
+  // --- Step 1: close the form visually ---
+  goalDonationForm.style.opacity = '0';
+  goalDonationForm.style.transform = 'scale(0.9)';
+
+  // Wait for fade-out animation
+  setTimeout(() => {
+    goalDonationForm.style.display = 'none';
+    goalDonationSuccess.style.display = 'block';
+    goalDonationSuccess.style.opacity = '1';
+  }, 300);
+
+  // --- Step 2: Delay the progress update until blur fades (≈600ms total) ---
+  setTimeout(() => {
+    raised += donation;
+    activeCard.dataset.raised = raised;
+
+    const percent = Math.min((raised / goal) * 100, 100);
+    const progressFill = activeCard.querySelector('.progress-fill');
+    const raisedText = activeCard.querySelector('.amount-raised');
+
+    // Smoothly fill progress bar
+    progressFill.style.width = percent + '%';
+    raisedText.textContent = `${raised.toLocaleString()} EGP raised`;
+
+    // Sound effect synced with fill
+    const sound = new Audio('https://cdn.pixabay.com/audio/2022/03/15/audio_cdb8b9a9b0.mp3');
+    sound.play();
+  }, 600); // ⏱ Fill starts after blur fades
+
+  // --- Step 3: Close popup after showing success ---
+  setTimeout(() => {
+    goalDonationSuccess.style.opacity = '0';
+    goalDonationOverlay.classList.remove('active');
+    pageContent.classList.remove('blur-active');
+
+    // Reset form + success state
+    setTimeout(() => {
+      goalDonationForm.reset();
+      goalDonationForm.style.display = 'block';
+      goalDonationForm.style.opacity = '1';
+      goalDonationForm.style.transform = 'scale(1)';
+      goalDonationSuccess.style.display = 'none';
+    }, 300);
+  }, 2100); // total time visible for message
+});
+
+// 4️⃣ RESET button (for prototype testing)
+document.querySelectorAll('.reset-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    const card = e.target.closest('.goal-card');
+    const goal = parseFloat(card.dataset.goal);
+    card.dataset.raised = 0;
+    card.querySelector('.progress-fill').style.width = '0%';
+    card.querySelector('.amount-raised').textContent = '0 EGP raised';
+  });
+});
+</script>
+
+  <script>
+  const toggle = document.getElementById("menu-toggle");
+  const navLinks = document.querySelector(".navbar ul");
+
+  toggle.addEventListener("click", () => {
+    navLinks.classList.toggle("open");
+  });
+</script>
+<script>
+ // === FADE-IN ON PAGE LOAD ===
+    document.addEventListener("DOMContentLoaded", function() {
+        document.body.classList.add("fade-in");
+    });
+
+    // === FADE-OUT BEFORE NAVIGATION ===
+    document.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", function(e) {
+            // Ignore external or new-tab links
+            if (this.target === "_blank" || this.hostname !== window.location.hostname || this.hash) return;
+
+            e.preventDefault();
+            const href = this.href;
+
+            // Trigger fade-out
+            document.body.classList.remove("fade-in");
+            setTimeout(() => {
+                window.location = href;
+            }, 800); // matches CSS transition
+        });
+    });
+    </script>
+    
+    <h2 style="color: rgb(16, 123, 245); text-align:center">Dive into the Future of Food on Earth</h2>
+    <section id="futuristicvision" class="futuristicvision">
+      <div class="wrap">
+  <div class="cinema-card" role="region" aria-label="Futuristic Vision Cinematic">
+
+    <div class="card-header">
+      <div>
+        <div class="card-title">OUR FUTURISTIC VISION</div>
+        <div class="card-sub">Satellites • AI • ShareFood — tracking hunger & excess food</div>
+      </div>
+      <div class="controls">
+        <button id="replayBtnTop" class="replay-btn" title="Replay simulation">Replay Simulation</button>
+      </div>
+    </div>
+
+    <div class="stage">
+
+      <!-- floating small flag banner (ripple) -->
+      <div class="ripple-banner" id="rippleBanner">
+        <div class="ripple-flag" id="rippleFlag">Keeping people & environment happy.</div>
+      </div>
+
+      <!-- SATELLITE SCENE LAYER -->
+      <div class="scene-layer sat-scene" id="satScene">
+        <div class="sat-card" id="satCard">
+
+          <!-- Earth Sphere -->
+          <div class="earth-sphere" id="earthSphere" aria-hidden="true"></div>
+          <div class="earth-label" id="earthLabel">EARTH</div>
+
+          <!-- scanning glow -->
+          <div class="scan-glow" id="scanGlow" style="opacity:0;">
+            <div class="g"></div>
+          </div>
+
+          <!-- Satellite A (Terra) -->
+          <div class="sat" id="satTerra" style="left:36%; top:14%;">
+            <div class="panel">TERRA</div>
+          </div>
+          <div class="sat-label offs" id="labelTerra" style="left:36%; top:9%;">TERRA (uses MODIS & MISR)</div>
+
+          <!-- Satellite B (Aqua) -->
+          <div class="sat" id="satAqua" style="left:18%; top:68%; width:100px;height:40px;">
+            <div class="panel">AQUA</div>
+          </div>
+          <div class="sat-label small" id="labelAqua" style="left:20%; top:74%;">AQUA</div>
+
+          <!-- Off-route labels (MODIS / MISR shown off path) -->
+          <div class="sat-label small" id="labelInstruments" style="left:58%; top:24%;">MODIS • MISR — sensors</div>
+
+          <!-- scanning explainer big label (animated) -->
+          <div class="sat-label" id="scanLabel" style="left:52%; top:76%; max-width:420px;">
+            <div style="font-size:1.02rem;">Satellites <strong>TERRA</strong> and <strong>AQUA</strong> collect data of Earth to show where rising hunger occurs.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MAP SCENE LAYER (hidden initially) -->
+      <div class="scene-layer map-scene" id="mapScene">
+        <div class="map-card" id="mapCard">
+
+          <!-- flat map area -->
+          <div class="flat-map" id="flatMap">
+            <svg class="map-svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-hidden="false">
+              <rect x="0" y="0" width="100%" height="100%" fill="#2e86c1" />
+              <path class="continent" d="M820 300 C820 260 840 220 880 200 C920 180 980 170 1040 180 C1100 192 1150 230 1168 282 C1180 320 1160 360 1128 380 C1100 400 1050 410 1010 402 C960 392 920 372 880 378 C840 385 820 360 820 320 Z" />
+              <path class="continent" d="M270 420 C300 400 350 380 390 390 C420 398 460 430 480 470 C500 512 480 570 440 610 C400 650 330 660 290 640 C250 620 230 560 250 510 C260 480 260 450 270 420 Z" />
+              <path class="continent" d="M120 120 C170 90 230 70 300 90 C370 110 420 150 470 190 C520 230 560 280 560 330 C550 370 520 410 470 430 C420 450 360 460 310 440 C260 420 220 370 200 320 C180 260 140 170 120 120 Z" />
+              <path class="continent" d="M420 120 C490 120 560 130 640 150 C700 165 760 200 820 230 C920 278 1030 300 1130 280 C1190 270 1250 250 1290 260 C1340 276 1370 320 1378 360 C1388 400 1360 450 1320 470 C1250 500 1160 490 1090 470 C1030 452 980 430 920 420 C860 410 800 392 750 380 C700 370 640 360 600 350 C560 340 520 300 500 260 C480 220 460 160 420 120 Z" />
+              <path class="continent" d="M1220 560 C1250 540 1290 530 1320 540 C1350 550 1370 580 1360 610 C1348 650 1300 670 1256 660 C1220 652 1210 620 1220 586 Z" />
+            </svg>
+          </div>
+
+          <!-- AI panel -->
+          <div class="ai-panel" id="aiPanel" aria-live="polite">
+            <div class="ai-title" id="aiTitle">AI ANALYTICS</div>
+            <div class="ai-graphic" id="aiGraphic">AI</div>
+            <div class="ai-desc" id="aiDesc">AI uses satellite data to pinpoint rising hunger index on the map.</div>
+            <div style="margin-top:auto;font-size:.9rem;color:#46677f;font-weight:700">Processing data from: <br/><strong>TERRA • AQUA • MODIS • MISR</strong></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+    </section>
+
+    <script>
+/* Timeline configuration */
+const DURATION_SATELLITE = 20000; // 20s satellite scene
+const FADE_DURATION = 2500; // 2.5s fade
+const HUNGER_STAGE = 6000;   // 6s hunger stage
+const EXCESS_STAGE = 6000;   // 6s excess-food stage
+
+/* Elements */
+const satScene = document.getElementById('satScene');
+const mapScene = document.getElementById('mapScene');
+const rippleFlag = document.getElementById('rippleFlag');
+
+const satTerra = document.getElementById('satTerra');
+const satAqua = document.getElementById('satAqua');
+const labelTerra = document.getElementById('labelTerra');
+const labelAqua = document.getElementById('labelAqua');
+const labelInstruments = document.getElementById('labelInstruments');
+const scanGlow = document.getElementById('scanGlow');
+const scanLabel = document.getElementById('scanLabel');
+const earthLabel = document.getElementById('earthLabel');
+
+const aiPanel = document.getElementById('aiPanel');
+const aiTitle = document.getElementById('aiTitle');
+const aiDesc = document.getElementById('aiDesc');
+const aiGraphic = document.getElementById('aiGraphic');
+
+const flatMap = document.getElementById('flatMap');
+const replayBtnTop = document.getElementById('replayBtnTop');
+
+let rippleIntervalId = null;
+let satelliteMotionRAF = null;
+let activePins = []; // references to DOM pins so we can remove them on replay
+
+/* Start flag ripple - strong ripple */
+function startFlagRipple(speed=60, amplitude=6){
+  const flag = document.getElementById('rippleFlag');
+  let t = 0;
+  const id = setInterval(()=> {
+    t += 0.18 * (60/speed);
+    const skew = Math.sin(t) * amplitude; // degrees
+    const translateY = Math.sin(t*1.7) * (amplitude/3);
+    const translateX = Math.cos(t*0.9) * (amplitude/4);
+    flag.style.transform = `skewX(${skew}deg) translate(${translateX}px, ${translateY}px)`;
+  }, speed);
+  return id;
+}
+
+/* Satellite motion loop for duration (will continue until canceled) */
+function startSatelliteMotion(duration){
+  const start = performance.now();
+  const orbitRadiusX = 260;
+  const orbitRadiusY = 140;
+  const centerX = 120;
+  const centerY = 180;
+  function frame(now){
+    const t = (now - start) / duration;
+    const phase = t * Math.PI * 6;
+    // Terra
+    const terraX = centerX + Math.cos(phase) * orbitRadiusX + Math.sin(phase * 0.7) * 20;
+    const terraY = centerY + Math.sin(phase) * orbitRadiusY * 0.7 + Math.sin(phase*1.1)*10;
+    satTerra.style.left = terraX + 'px';
+    satTerra.style.top = terraY + 'px';
+    // Aqua
+    const aquaX = centerX - Math.cos(phase*0.9) * (orbitRadiusX*0.8) + Math.cos(phase*0.6)*10;
+    const aquaY = centerY + Math.sin(phase*0.9) * (orbitRadiusY*0.75) + Math.cos(phase*0.3)*8;
+    satAqua.style.left = aquaX + 'px';
+    satAqua.style.top = aquaY + 'px';
+    // labels follow
+    labelTerra.style.left = (terraX + 10) + 'px';
+    labelTerra.style.top = (terraY - 30) + 'px';
+    labelAqua.style.left = (aquaX - 10) + 'px';
+    labelAqua.style.top = (aquaY + 36) + 'px';
+    // scan glow pulse
+    const pulse = 0.5 + 0.5 * Math.sin(phase * 2.2);
+    scanGlow.style.opacity = 0.15 + (0.5 * Math.max(0, pulse));
+    scanGlow.style.transform = `translateY(${(terraY - 260)}px) scale(${1 + 0.2 * Math.abs(Math.sin(phase*1.1))})`;
+    satelliteMotionRAF = requestAnimationFrame(frame);
+  }
+  satelliteMotionRAF = requestAnimationFrame(frame);
+}
+
+/* Satellite scene entrance */
+function startSatelliteScene(){
+  // labels and scan appear
+  setTimeout(()=>{ labelTerra.style.opacity = 1; labelAqua.style.opacity = 1; labelInstruments.style.opacity = 0.95; }, 400);
+  setTimeout(()=>{ scanLabel.style.opacity = 1; scanLabel.style.transform = 'translateX(0)'; }, 900);
+  setTimeout(()=>{ earthLabel.style.opacity = 1; earthLabel.style.transform='translateY(0)'; }, 900);
+  setTimeout(()=>{ scanGlow.style.opacity = 0.24; scanGlow.style.transition='opacity .5s linear, transform .6s ease-in-out'; }, 1200);
+  startSatelliteMotion(DURATION_SATELLITE);
+}
+
+/* Map stage: fade out sat, fade in map, begin AI -> hunger/excess timeline */
+function showMapStage(){
+  satScene.style.transition = `opacity ${FADE_DURATION}ms ease`;
+  satScene.style.opacity = 0;
+  setTimeout(()=>{
+    mapScene.style.pointerEvents = "auto";
+    mapScene.style.opacity = 1;
+    aiPanel.style.transform = 'translateY(0)'; aiPanel.style.opacity = 1;
+    // AI title and description animation (prominent)
+    setTimeout(()=> {
+      aiTitle.style.opacity = 1; aiTitle.style.transform = 'translateY(0)';
+      aiDesc.style.opacity = 1; aiDesc.classList.add('big');
+    }, 250);
+    // begin hunger & excess sequence
+    setTimeout(()=> {
+      runMapSequence();
+    }, 450);
+  }, FADE_DURATION * 0.3);
+  setTimeout(()=>{ satScene.style.display = 'none'; }, FADE_DURATION + 60);
+}
+
+/* Create a pin on the flatMap. xPct/yPct are coords 0..1 relative to flatMap area */
+function createPin(kind, xPct, yPct, labelText, delay=0, opts={}){
+  const pin = document.createElement('div');
+  pin.className = 'map-pin '+(kind === 'hunger' ? 'hunger' : 'food');
+  pin.style.left = (xPct*100) + '%';
+  pin.style.top = (yPct*100) + '%';
+  pin.style.transform = 'translate(-50%, -100%) scale(.8)';
+  pin.innerHTML = `<div class="pin-head"></div><div class="pin-tail"></div>`;
+  const lab = document.createElement('div'); lab.className='pin-label'; lab.textContent = labelText;
+  pin.appendChild(lab);
+  // add to map
+  setTimeout(()=>{
+    flatMap.appendChild(pin);
+    activePins.push(pin);
+    pin.style.animation = 'popIn .8s cubic-bezier(.2,.9,.2,1) forwards';
+    pin.style.opacity = 1;
+    lab.style.opacity = 1;
+    setTimeout(()=> pin.classList.add('bob'), 900);
+  }, delay);
+  return pin;
+}
+
+function clearPins(){
+  activePins.forEach(p => p.remove());
+  activePins = [];
+  // remove any action labels too
+  document.querySelectorAll('.action-label').forEach(a=>a.remove());
+}
+
+/* run map timeline: 6s hunger stage -> 6s excess stage -> reveal ShareFood + action labels */
+function runMapSequence(){
+  clearPins();
+  // HUNGER STAGE: show hunger pins and make AI text prominent
+  aiDesc.textContent = "AI uses satellite data to pinpoint rising hunger index on the map.";
+  aiDesc.classList.add('big'); // prominent
+  aiDesc.style.transition = 'all .4s ease';
+  // spawn hunger pins (fixed coords)
+  const hungerCoords = [
+    [0.58, 0.48],
+    [0.45, 0.62],
+    [0.33, 0.52],
+    [0.72, 0.36],
+    [0.21, 0.74],
+  ];
+  hungerCoords.forEach((c,i) => createPin('hunger', c[0], c[1], `Hunger Zone ${i+1}`, i*300));
+  // keep hunger stage visible for HUNGER_STAGE ms
+  setTimeout(()=> {
+    // After hunger stage, move to excess-food stage
+    aiDesc.classList.remove('big');
+    startExcessStage();
+  }, HUNGER_STAGE);
+}
+
+function startExcessStage(){
+  // EXCESS FOOD STAGE: update AI description & spawn restaurant pins
+  aiDesc.textContent = "AI identifies restaurants & venues with excess food — coordinating donations.";
+  aiDesc.classList.add('big');
+  const foodCoords = [
+    [0.62, 0.55],
+    [0.50, 0.44],
+    [0.75, 0.62],
+    [0.28, 0.44],
+    [0.80, 0.32],
+  ];
+  foodCoords.forEach((c,i) => createPin('food', c[0], c[1], `Restaurant ${i+1}`, i*340));
+  // keep for EXCESS_STAGE ms then reveal ShareFood and action labels
+  setTimeout(()=> {
+    revealShareFood();
+  }, EXCESS_STAGE);
+}
+
+function revealShareFood(){
+  // morph AI to ShareFood appearance
+  aiTitle.textContent = "SHAREFOOD";
+  aiGraphic.textContent = "SF";
+  aiGraphic.style.background = "linear-gradient(90deg,#ffd06b,#ff8a5b)";
+  aiDesc.textContent = "We connect places with excess food to communities in need. Donate or accept donations.";
+  // place action labels
+  const donateLabel = document.createElement('div');
+  donateLabel.className = 'action-label';
+  donateLabel.textContent = 'Giving donations to';
+  donateLabel.style.left = '62%';
+  donateLabel.style.top = '36%';
+  flatMap.appendChild(donateLabel);
+
+  const acceptLabel = document.createElement('div');
+  acceptLabel.className = 'action-label';
+  acceptLabel.textContent = 'Accepting donations from';
+  acceptLabel.style.left = '28%';
+  acceptLabel.style.top = '58%';
+  flatMap.appendChild(acceptLabel);
+
+  // animate in labels
+  setTimeout(()=> { donateLabel.style.opacity = 1; donateLabel.style.transform = 'translateY(0)'; }, 300);
+  setTimeout(()=> { acceptLabel.style.opacity = 1; acceptLabel.style.transform = 'translateY(0)'; }, 700);
+}
+
+/* Sequence orchestrator: start everything from beginning */
+function startCinematic(){
+  // reset states
+  satScene.style.display = 'flex';
+  satScene.style.opacity = 1;
+  mapScene.style.opacity = 0;
+  mapScene.style.pointerEvents = 'none';
+  // clear map area pins or labels
+  clearPins();
+  // reset AI panel
+  aiTitle.textContent = "AI ANALYTICS";
+  aiGraphic.textContent = "AI";
+  aiGraphic.style.background = "linear-gradient(135deg,#eef4ff,#dfeaff)";
+  aiDesc.textContent = "AI uses satellite data to pinpoint rising hunger index on the map.";
+  aiPanel.style.opacity = 0; aiPanel.style.transform = 'translateY(20px)';
+  aiTitle.style.opacity = 0; aiTitle.style.transform = 'translateY(8px)';
+  aiDesc.style.opacity = 0; aiDesc.classList.remove('big');
+
+  // satellite labels reset
+  labelTerra.style.opacity = 0; labelAqua.style.opacity = 0; labelInstruments.style.opacity = 0;
+  scanLabel.style.opacity = 0; earthLabel.style.opacity = 0;
+  scanGlow.style.opacity = 0;
+
+  // start ripple & satellite motion
+  if (rippleIntervalId) clearInterval(rippleIntervalId);
+  rippleIntervalId = startFlagRipple(60, 6);
+  // start satellite motion (RAF)
+  if (satelliteMotionRAF) cancelAnimationFrame(satelliteMotionRAF);
+  startSatelliteMotion(DURATION_SATELLITE);
+  startSatelliteScene();
+
+  // schedule map stage after DURATION_SATELLITE
+  setTimeout(()=>{
+    // slow the flag ripple down for map
+    if (rippleIntervalId) clearInterval(rippleIntervalId);
+    let slowT = 0;
+    const slowId = setInterval(()=> {
+      slowT+=0.08;
+      const skew = Math.sin(slowT) * 2;
+      const translateY = Math.sin(slowT*1.7) * 1;
+      document.getElementById('rippleFlag').style.transform = `skewX(${skew}deg) translateY(${translateY}px)`;
+    },120);
+    // map transition
+    showMapStage();
+    setTimeout(()=> clearInterval(slowId), 3000);
+  }, DURATION_SATELLITE);
+}
+
+/* Replay - reload simulation by reinitializing things (no full page reload) */
+function replayCinematic(){
+  // cleanup
+  if (satelliteMotionRAF) cancelAnimationFrame(satelliteMotionRAF);
+  if (rippleIntervalId) clearInterval(rippleIntervalId);
+  clearPins();
+  // reset banner transform
+  document.getElementById('rippleFlag').style.transform = 'none';
+  // reset map scene display
+  mapScene.style.opacity = 0; mapScene.style.pointerEvents = 'none';
+  // show satScene
+  satScene.style.display = 'flex';
+  satScene.style.opacity = 1;
+  // small timeout then restart
+  setTimeout(()=> startCinematic(), 200);
+}
+
+/* Attach replay button handlers */
+replayBtnTop.addEventListener('click', ()=> {
+  replayCinematic();
+});
+
+/* Auto-start on load */
+window.addEventListener('load', ()=> {
+  startCinematic();
+});
+
+/* Accessibility: pressing R restarts */
+window.addEventListener('keydown', e => {
+  if (e.key.toLowerCase() === 'r') replayCinematic();
+});
+
+</script>
+
+
+
+
+
+  <section id="aboutUs" class="founders">
+    <h2>ShareFood’s Founders</h2>
+
+  <div class="founder-card">
+    <img src="logo.png" alt="Founder Image" class="founder-img" />
+    <div class="founder-info">
+      <div class="founder-name">Fatima El-Mahdi</div>
+      <div class="founder-phone">📞 +249 912 345 678</div>
+      <div class="founder-email">✉️ <a href="mailto:fatima@sharefood.org">fatima@sharefood.org</a></div>
+    </div>
+  </div>
+
+  <div class="founder-card">
+    <img src="logo.png" alt="Founder Image" class="founder-img" />
+    <div class="founder-info">
+      <div class="founder-name">Fatima El-Mahdi</div>
+      <div class="founder-phone">📞 +249 912 345 678</div>
+      <div class="founder-email">✉️ <a href="mailto:fatima@sharefood.org">fatima@sharefood.org</a></div>
+    </div>
+  </div>
+
+    <div class="founder-card">
+    <img src="logo.png" alt="Founder Image" class="founder-img" />
+    <div class="founder-info">
+      <div class="founder-name">Fatima El-Mahdi</div>
+      <div class="founder-phone">📞 +249 912 345 678</div>
+      <div class="founder-email">✉️ <a href="mailto:fatima@sharefood.org">fatima@sharefood.org</a></div>
+    </div>
+  </div>
+
+    <div class="founder-card">
+    <img src="logo.png" alt="Founder Image" class="founder-img" />
+    <div class="founder-info">
+      <div class="founder-name">Fatima El-Mahdi</div>
+      <div class="founder-phone">📞 +249 912 345 678</div>
+      <div class="founder-email">✉️ <a href="mailto:fatima@sharefood.org">fatima@sharefood.org</a></div>
+    </div>
+  </div>
+
+    <div class="founder-card">
+    <img src="logo.png" alt="Founder Image" class="founder-img" />
+    <div class="founder-info">
+      <div class="founder-name">Fatima El-Mahdi</div>
+      <div class="founder-phone">📞 +249 912 345 678</div>
+      <div class="founder-email">✉️ <a href="mailto:fatima@sharefood.org">fatima@sharefood.org</a></div>
+    </div>
+  </div>
+  </section>
+
+
+
+</body>
+</html>
