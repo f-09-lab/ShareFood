@@ -1077,6 +1077,503 @@ window.addEventListener('keydown', e => {
 
 </script>
 
+<!-- START: Sequential Horizontal Flow Section -->
+<section id="donation-flow-section" aria-label="Donation process flow" style="padding:40px 20px;box-sizing:border-box;">
+  <style>
+    /* --- Container & layout --- */
+    #flow {
+      max-width: 1100px;
+      margin: 0 auto;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      --accent: #0a84ff;
+      --accent-2: #0fb37a;
+      --muted: #7a7f87;
+      position: relative;
+    }
+
+    .flow-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      position: relative;
+      padding: 30px 20px;
+      background: linear-gradient(180deg, rgba(250,250,252,1), rgba(245,248,255,1));
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(14, 21, 47, 0.06);
+      overflow: visible;
+    }
+
+    /* --- Step nodes --- */
+    .step {
+      min-width: 220px;
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 6px 14px rgba(12,18,40,0.06);
+      text-align: center;
+      transition: transform .35s ease, box-shadow .35s ease, border-color .35s;
+      border: 2px solid transparent;
+      cursor: default;
+      z-index: 3;
+      position: relative;
+    }
+    .step .num {
+      display:inline-block;
+      width:34px;height:34px;border-radius:9px;
+      background:linear-gradient(180deg,var(--accent), #0066d6);
+      color:white;line-height:34px;font-weight:700;margin-bottom:8px;
+      font-size:14px;
+      box-shadow: 0 4px 10px rgba(10, 132, 255, 0.18);
+    }
+    .step h4 { margin:6px 0 4px;font-size:15px;color:#0e1220; }
+    .step p { margin:0;font-size:13px;color:var(--muted) }
+
+    /* inactive = slightly faded */
+    .step.inactive { opacity: .28; transform: scale(.98); filter: grayscale(.02); }
+    .step.active {
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(10,132,255,0.12);
+      box-shadow: 0 12px 30px rgba(10,132,255,0.08);
+      opacity: 1;
+    }
+
+    /* clickable Step 2 */
+    .step.clickable { cursor: pointer; }
+    .step.clickable:focus { outline: 3px solid rgba(15,179,122,0.12); border-radius:12px; }
+
+    /* --- Connectors --- */
+    .connector {
+      flex: 1 1 auto;
+      height: 6px;
+      position: relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-width: 140px;
+      margin: 0 6px;
+      z-index: 1;
+    }
+    .connector .bar {
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(90deg, rgba(220,220,230,1), rgba(240,244,255,1));
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    /* drawing overlay (we animate scaleX) */
+    .connector .draw {
+      position:absolute;
+      left:0;top:0;height:100%;
+      width:100%;
+      transform-origin: left center;
+      transform: scaleX(0);
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: 6px;
+      transition: transform .9s cubic-bezier(.2,.9,.25,1);
+      box-shadow: 0 6px 18px rgba(10,132,255,.08);
+    }
+    .connector.drawn .draw { transform: scaleX(1); }
+
+    /* --- Vehicle --- */
+    .vehicle {
+      position: absolute;
+      top: -26px; /* sits slightly above connector */
+      left: 8px;
+      width: 56px;
+      height: 28px;
+      z-index: 4;
+      transform: translateX(0) translateY(0);
+      transition: transform linear;
+      display:flex;align-items:center;justify-content:center;
+      pointer-events:none;
+    }
+    .vehicle svg { width:100%; height:100%; display:block; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12)); }
+
+    /* animate by toggling a class */
+    .vehicle.moving { transition-duration: 1600ms; }
+
+    /* --- Modal / popup --- */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(6,12,30,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1200;
+      padding: 18px;
+    }
+    .modal-backdrop.open { display:flex; }
+
+    .modal {
+      background: white;
+      border-radius: 12px;
+      max-width: 680px;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(9,16,40,0.3);
+      transform: translateY(10px) scale(.98);
+      transition: transform .28s cubic-bezier(.2,.9,.25,1), opacity .18s;
+      opacity: 0;
+    }
+    .modal.open { transform: translateY(0) scale(1); opacity:1; }
+
+    .modal h3 { margin:0 0 8px; font-size:18px; color:#071029; }
+    .modal p { margin:0 0 16px; color:var(--muted) }
+
+    .btn {
+      display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;
+      background:var(--accent);color:white;font-weight:600;border:0;cursor:pointer;
+      box-shadow: 0 8px 18px rgba(10,132,255,0.12);
+    }
+    .btn.secondary {
+      background: white;color:var(--accent);border:1px solid rgba(10,132,255,0.08);
+      box-shadow: none;
+    }
+
+    /* --- Form (spring up) --- */
+    .join-form {
+      margin-top:14px;
+      display:none;
+      transform-origin: top center;
+    }
+    .join-form.open { display:block; animation: springIn .5s cubic-bezier(.2,.9,.25,1); }
+    @keyframes springIn {
+      0% { transform: scale(.88) translateY(6px); opacity: 0; }
+      60% { transform: scale(1.02) translateY(-4px); opacity: 1; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .form-grid { display:grid; grid-template-columns: repeat(2,1fr); gap:10px; align-items:center; }
+    .form-row { display:flex;flex-direction:column; }
+    label { font-size:12px;color:#243041;margin-bottom:6px; font-weight:600; }
+    input, textarea {
+      padding:10px;border-radius:8px;border:1px solid #e6e9ef;font-size:13px;
+      background: #fff;
+    }
+    textarea { resize:vertical; min-height:80px; grid-column: 1 / -1; }
+
+    .small-note { font-size:12px;color:var(--muted); margin-top:8px; }
+
+    /* small responsive tweaks */
+    @media (max-width: 840px) {
+      .flow-row { flex-direction: column; gap: 20px; }
+      .connector { width: 80%; height: 6px; min-width: 0; }
+      .vehicle { display:none; } /* hide vehicle on very small screens */
+      .form-grid { grid-template-columns: 1fr; }
+      .step { min-width: auto; width: 100%; }
+    }
+  </style>
+
+  <div id="flow" role="region" aria-labelledby="flow-title">
+    <h2 id="flow-title" style="font-size:18px;margin:0 0 14px;color:#0d44a3;">How your kindness reaches the right audience</h2>
+
+    <div class="flow-row" role="list">
+      <!-- Step 1 -->
+      <div class="step inactive" id="step1" role="listitem" aria-label="Step 1: Successfully confirmed donations" tabindex="0">
+        <div class="num">1</div>
+        <h4>Successfully confirmed donations</h4>
+        <p>Donations verified and logged.</p>
+      </div>
+
+      <!-- Connector 1 -->
+      <div class="connector" id="conn1" aria-hidden="true">
+        <div class="bar" aria-hidden="true">
+          <div class="draw"></div>
+        </div>
+      </div>
+
+      <!-- Step 2 (clickable) -->
+      <div class="step inactive clickable" id="step2" role="button" aria-pressed="false" tabindex="0">
+        <div class="num">2</div>
+        <h4>DONATIONS processed by sponsors</h4>
+        <p>Partners package & arrange distribution.</p>
+      </div>
+
+      <!-- Connector 2 -->
+      <div class="connector" id="conn2" aria-hidden="true">
+        <div class="bar" aria-hidden="true">
+          <div class="draw"></div>
+        </div>
+
+        <!-- vehicle sits on connector 2 and will move left→right -->
+        <div class="vehicle" id="vehicle" aria-hidden="true" title="delivery vehicle">
+          <!-- simple van SVG -->
+          <svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Van icon">
+            <rect x="2" y="8" rx="4" ry="4" width="46" height="16" fill="#0fb37a"/>
+            <rect x="44" y="4" rx="3" ry="3" width="18" height="20" fill="#0a84ff"/>
+            <circle cx="16" cy="26" r="3.6" fill="#243041"/>
+            <circle cx="40" cy="26" r="3.6" fill="#243041"/>
+            <rect x="8" y="10" width="14" height="8" rx="1" fill="#dff7ee"/>
+            <rect x="46" y="8" width="12" height="8" rx="1" fill="#dff7ee"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step inactive" id="step3" role="listitem" aria-label="Step 3: Delivered to appropriate city" tabindex="0">
+        <div class="num">3</div>
+        <h4>Delivered to appropriate city</h4>
+        <p>Distributed across Sudan & Egypt.</p>
+      </div>
+    </div>
+
+    <p style="margin:12px 0 0;color:var(--muted);font-size:13px;">Tip: click Step 2 to invite volunteers.</p>
+  </div>
+
+  <!-- Modal / popup for Step 2 -->
+  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h3 id="modalTitle">Volunteer and join our partners</h3>
+      <p>Would you like to join our partner network and help deliver donations? Press Join to complete the volunteer form.</p>
+
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button class="btn" id="openFormBtn" type="button" style="color: #0e1220;">Join</button>
+        <button class="btn secondary" id="closeModal" type="button">Close</button>
+      </div>
+
+      <div class="join-form" id="joinForm" aria-hidden="true">
+        <form id="volForm" onsubmit="return false;" aria-label="Volunteer signup form">
+          <div class="form-grid">
+            <div class="form-row">
+              <label for="fname">First name</label>
+              <input id="fname" name="firstName" type="text" required />
+            </div>
+            <div class="form-row">
+              <label for="lname">Last name</label>
+              <input id="lname" name="lastName" type="text" required />
+            </div>
+            <div class="form-row">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" required />
+            </div>
+            <div class="form-row">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" required />
+            </div>
+            <div class="form-row">
+              <label for="age">Age</label>
+              <input id="age" name="age" type="number" min="13" />
+            </div>
+            <div class="form-row">
+              <label for="why">Why you want to join</label>
+              <textarea id="why" name="why" placeholder="A short sentence..." required></textarea>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:12px;align-items:center;">
+            <button class="btn" id="submitVol" type="submit" style="color: #061226;">Submit application</button>
+            <button class="btn secondary" id="cancelForm" type="button">Cancel</button>
+            <div class="small-note" id="formNote" aria-live="polite" style="margin-left:auto;color:var(--muted)">You can close anytime.</div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // Elements
+      const step1 = document.getElementById('step1');
+      const step2 = document.getElementById('step2');
+      const step3 = document.getElementById('step3');
+      const conn1 = document.getElementById('conn1');
+      const conn2 = document.getElementById('conn2');
+      const vehicle = document.getElementById('vehicle');
+
+      const modalBackdrop = document.getElementById('modalBackdrop');
+      const openFormBtn = document.getElementById('openFormBtn');
+      const closeModal = document.getElementById('closeModal');
+      const joinForm = document.getElementById('joinForm');
+      const cancelForm = document.getElementById('cancelForm');
+      const volForm = document.getElementById('volForm');
+      const submitVol = document.getElementById('submitVol');
+
+      // Sequence timings (ms)
+      const T_STEP = 1100;    // delay before next step activation
+      const T_VEHICLE = 1600; // travel time for vehicle
+      const LOOP_PAUSE = 1200;
+
+      let loopTimer = null;
+      let running = false;
+
+      function resetVisual() {
+        // reset classes/style
+        [step1, step2, step3].forEach(s => {
+          s.classList.remove('active');
+          s.classList.add('inactive');
+        });
+        conn1.classList.remove('drawn');
+        conn2.classList.remove('drawn');
+        vehicle.style.transitionDuration = '0ms';
+        vehicle.style.transform = 'translateX(0px)';
+        vehicle.classList.remove('moving');
+      }
+
+      function seqStart() {
+        if (running) return;
+        running = true;
+        resetVisual();
+
+        // Step 1 activate
+        setTimeout(() => {
+          step1.classList.remove('inactive'); step1.classList.add('active');
+          // draw first connector after a short delay
+          setTimeout(()=> {
+            conn1.classList.add('drawn');
+            // Step 2 activate once connector drawn
+            setTimeout(()=> {
+              step2.classList.remove('inactive'); step2.classList.add('active');
+              // small pause then vehicle movement + draw conn2 + activate step3
+              setTimeout(()=> {
+                // draw conn2
+                conn2.classList.add('drawn');
+                // move vehicle from left to right across conn2
+                animateVehicleToEnd(() => {
+                  // after vehicle arrives, activate step3
+                  step3.classList.remove('inactive'); step3.classList.add('active');
+                });
+              }, 350);
+            }, T_STEP);
+          }, 220);
+        }, 220);
+
+        // schedule loop restart
+        const totalDuration = 220 /*start delay*/ + T_STEP /*to step2*/ + 350 + T_VEHICLE + LOOP_PAUSE + 400;
+        loopTimer = setTimeout(()=> {
+          // fade out everything softly before restarting
+          [step1, step2, step3].forEach(s => s.classList.remove('active'));
+          setTimeout(()=>{
+            running = false;
+            resetVisual();
+            seqStart(); // restart
+          }, 420);
+        }, totalDuration);
+      }
+
+      function animateVehicleToEnd(done) {
+        // show vehicle at start position (left of connector)
+        vehicle.style.transitionDuration = T_VEHICLE + 'ms';
+        vehicle.classList.add('moving');
+
+        // compute travel distance inside connector element
+        // vehicle container is absolutely positioned inside conn2 — we animate translateX to full width - some offset
+        const connRect = conn2.getBoundingClientRect();
+        const vehicleRect = vehicle.getBoundingClientRect();
+        // target translateX in px relative to current translation
+        const available = connRect.width - vehicleRect.width - 12; // margin
+        // apply transform
+        vehicle.style.transform = 'translateX(' + (available) + 'px)';
+
+        // after transition complete:
+        setTimeout(()=> {
+          vehicle.classList.remove('moving');
+          if (typeof done === 'function') done();
+        }, T_VEHICLE + 30);
+      }
+
+      // Start loop
+      window.addEventListener('load', ()=> {
+        // small initial reset + start
+        resetVisual();
+        setTimeout(seqStart, 550);
+      });
+
+      // Step2 click opens modal
+      function openModal() {
+        modalBackdrop.classList.add('open');
+        document.querySelector('.modal').classList.add('open');
+        modalBackdrop.setAttribute('aria-hidden','false');
+        // focus management
+        openFormBtn.focus();
+      }
+      function closeModalFn() {
+        modalBackdrop.classList.remove('open');
+        document.querySelector('.modal').classList.remove('open');
+        modalBackdrop.setAttribute('aria-hidden','true');
+        // hide form
+        joinForm.classList.remove('open');
+        joinForm.setAttribute('aria-hidden','true');
+      }
+
+      step2.addEventListener('click', openModal);
+      step2.addEventListener('keydown', (e)=> {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); }
+      });
+
+      closeModal.addEventListener('click', closeModalFn);
+      modalBackdrop.addEventListener('click', (e)=> {
+        if (e.target === modalBackdrop) closeModalFn();
+      });
+
+      openFormBtn.addEventListener('click', ()=> {
+        joinForm.classList.add('open');
+        joinForm.setAttribute('aria-hidden','false');
+        // focus first input
+        setTimeout(()=> document.getElementById('fname').focus(), 120);
+      });
+
+      cancelForm.addEventListener('click', ()=> {
+        joinForm.classList.remove('open');
+        joinForm.setAttribute('aria-hidden','true');
+        openFormBtn.focus();
+      });
+
+      // simple form submit (replace with real submit integration)
+      volForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitVol.disabled = true;
+        submitVol.textContent = 'Sending...';
+        // simulate API call
+        setTimeout(()=> {
+          submitVol.disabled = false;
+          submitVol.textContent = 'Submit application';
+          // small success feedback
+          document.getElementById('formNote').textContent = 'Thank you — application received (demo).';
+          // optionally reset
+          volForm.reset();
+          joinForm.classList.remove('open');
+          joinForm.setAttribute('aria-hidden','true');
+          // close modal shortly
+          setTimeout(closeModalFn, 800);
+        }, 900);
+      });
+
+      // keyboard escape to close modal
+      window.addEventListener('keydown', (e)=> {
+        if (e.key === 'Escape') {
+          if (modalBackdrop.classList.contains('open')) closeModalFn();
+        }
+      });
+
+      // Make sure the vehicle reposition resets when window resizes
+      let resizeTimer;
+      window.addEventListener('resize', ()=> {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          // reset vehicle position to start if not currently moving
+          if (!vehicle.classList.contains('moving')) {
+            vehicle.style.transitionDuration = '0ms';
+            vehicle.style.transform = 'translateX(0px)';
+          }
+        }, 160);
+      });
+
+      // For safety: stop loop if user leaves page
+      document.addEventListener('visibilitychange', ()=> {
+        if (document.hidden) {
+          clearTimeout(loopTimer);
+          running = false;
+        } else {
+          if (!running) seqStart();
+        }
+      });
+
+    })();
+  </script>
+</section>
+<!-- END: Sequential Horizontal Flow Section -->
 
 
 
@@ -1118,5 +1615,6 @@ window.addEventListener('keydown', e => {
 
 </body>
 </html>
+
 
 
